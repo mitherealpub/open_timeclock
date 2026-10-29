@@ -63,7 +63,7 @@ defmodule TimeclockWeb.Router do
 
     # Standard Email Registration and Login Screens
     sign_in_route register_path: "/register",
-                  reset_path: "/reset",
+                  reset_path: "/register",
                   auth_routes_prefix: "/auth",
                   on_mount: [{LiveUserAuth, :live_no_user}],
                   overrides: [
@@ -107,6 +107,9 @@ defmodule TimeclockWeb.Router do
       
       # Real-Time Employee Clocking Punch Kiosk Terminal View
       live "/terminal", TimeclockWeb.ClockingTerminalLive, :index
+
+      # Standard Employee Leave Submission Portal
+      live "/time-off", TimeclockWeb.AbsenceRequestLive, :index
     end
   end
 
@@ -140,24 +143,20 @@ defmodule TimeclockWeb.Router do
 
       # Encrypted System Settings & Swoosh SMTP Configuration
       live "/system-settings", SystemSettingsLive, :index
+    end
 
-      live "/time-off", AbsenceRequestLive, :index
+    # Explicit Administrative Role Protection Session Scope
+    ash_authentication_live_session :admin_required,
+      on_mount: [
+        {LiveUserAuth, :live_user_required},
+        {LiveUserAuth, {:required_roles, [:admin, :manager]}},
+        {AshScope, :current_scope},
+        {LiveUserAuth, :user_setup}
+      ] do
+      # Operational Cockpit for Approving Workflow Envelopes & Overrides
+      live "/approvals", AdminApprovalsLive, :index
     end
   end
-
-  scope "/admin", TimeclockWeb do
-  pipe_through [:browser, :user]
-
-  ash_authentication_live_session :authentication_required,
-    on_mount: [
-      {LiveUserAuth, :live_user_required}, 
-      # You can add your role check macro straight into the routing stack!
-      {LiveUserAuth, {:required_roles, [:admin, :manager]}},
-      {AshScope, :current_scope}
-    ] do
-    live "/approvals", AdminApprovalsLive, :index
-  end
-end
 
   # Core API Integration Scope
   scope "/api", TimeclockWeb do

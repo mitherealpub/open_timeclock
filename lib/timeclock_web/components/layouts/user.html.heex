@@ -25,40 +25,51 @@
           <span class="text-slate-500 group-hover:text-emerald-400 transition-colors">⏱️</span> Kiosk Punch Terminal
         </.link>
 
-        <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 pt-6 mb-2">System Admin</span>
-
-        <.link navigate={~p"/admin/infrastructure"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
-          <span class="text-slate-500 group-hover:text-indigo-400 transition-colors">🏢</span> Business Units
-        </.link>
-
-        <.link navigate={~p"/admin/roster-planner"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
-          <span class="text-slate-500 group-hover:text-purple-400 transition-colors">🗓️</span> Shift Scheduler
-        </.link>
-
-        <.link navigate={~p"/admin/calendar-events"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
-          <span class="text-slate-500 group-hover:text-amber-400 transition-colors">🗺️</span> Calendars & Events
-        </.link>
-
-        <.link navigate={~p"/admin/operations-board"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
-          <span class="text-slate-500 group-hover:text-sky-400 transition-colors">💼</span> Projects & Milestones
-        </.link>
-
-        <.link navigate={~p"/admin/system-settings"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
-          <span class="text-slate-500 group-hover:text-slate-400 transition-colors">⚙️</span> System Gateways
-        </.link>
-
-        <.link navigate={~p"/admin/schedule-gantt"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
-         <span class="text-slate-500 group-hover:text-indigo-400 transition-colors">📊</span> Gantt Planner
-        </.link>
-
         <.link navigate={~p"/home/time-off"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
          <span class="text-slate-500 group-hover:text-amber-400 transition-colors">🌴</span> Request Time-Off
         </.link>
 
-        <.link navigate={~p"/admin/approvals"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
-  <span class="text-slate-500 group-hover:text-emerald-400 transition-colors">📝</span> Operations Approvals
-</.link>
+        <!-- Administrative Actions: Wrapped safely in conditional role validations filters -->
+        <%
+          # Check if the active user actor contains administrative or managerial privileges
+          is_admin? = 
+            assigns[:current_scope] && 
+            @current_scope.current_user && 
+            Map.has_key?(@current_scope.current_user, :roles) &&
+            Enum.any?(@current_scope.current_user.roles, fn r -> r.name in ["admin", "manager"] end)
+        %>
 
+        <div :if={is_admin?} class="space-y-1 pt-6 animate fadeIn">
+          <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 mb-2">System Admin</span>
+
+          <.link navigate={~p"/admin/infrastructure"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
+            <span class="text-slate-500 group-hover:text-indigo-400 transition-colors">🏢</span> Business Units
+          </.link>
+
+          <.link navigate={~p"/admin/roster-planner"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
+            <span class="text-slate-500 group-hover:text-purple-400 transition-colors">🗓️</span> Shift Scheduler
+          </.link>
+
+          <.link navigate={~p"/admin/schedule-gantt"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
+           <span class="text-slate-500 group-hover:text-indigo-400 transition-colors">📊</span> Gantt Planner
+          </.link>
+
+          <.link navigate={~p"/admin/calendar-events"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
+            <span class="text-slate-500 group-hover:text-amber-400 transition-colors">🗺️</span> Calendars & Events
+          </.link>
+
+          <.link navigate={~p"/admin/operations-board"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
+            <span class="text-slate-500 group-hover:text-sky-400 transition-colors">💼</span> Projects & Milestones
+          </.link>
+
+          <.link navigate={~p"/admin/approvals"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
+            <span class="text-slate-500 group-hover:text-emerald-400 transition-colors">📝</span> Operations Approvals
+          </.link>
+
+          <.link navigate={~p"/admin/system-settings"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
+            <span class="text-slate-500 group-hover:text-slate-400 transition-colors">⚙️</span> System Gateways
+          </.link>
+        </div>
       </nav>
     </div>
 
