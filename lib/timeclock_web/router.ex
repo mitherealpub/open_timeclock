@@ -142,10 +142,22 @@ defmodule TimeclockWeb.Router do
       live "/system-settings", SystemSettingsLive, :index
 
       live "/time-off", AbsenceRequestLive, :index
-
-      live "/approvals", AdminApprovalsLive, :index
     end
   end
+
+  scope "/admin", TimeclockWeb do
+  pipe_through [:browser, :user]
+
+  ash_authentication_live_session :authentication_required,
+    on_mount: [
+      {LiveUserAuth, :live_user_required}, 
+      # You can add your role check macro straight into the routing stack!
+      {LiveUserAuth, {:required_roles, [:admin, :manager]}},
+      {AshScope, :current_scope}
+    ] do
+    live "/approvals", AdminApprovalsLive, :index
+  end
+end
 
   # Core API Integration Scope
   scope "/api", TimeclockWeb do

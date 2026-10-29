@@ -3,7 +3,7 @@ defmodule Timeclock.Absences.Absence do
     otp_app: :timeclock,
     domain: Timeclock.Absences,
     data_layer: AshPostgres.DataLayer,
-    authorizers: [],
+    authorizers: [Ash.Policy.Authorizer]
     extensions: []
 
   attributes do
@@ -62,4 +62,23 @@ defmodule Timeclock.Absences.Absence do
   preparations do
     prepare build(load: [:status, :user, :approved_by, :absence_definition])
   end
+
+  # Inside your defmodule Timeclock.Absences.Absence block:
+policies do
+  # Rule 1: Anyone can view their own requests, and create new ones
+  policy action_type([:read, :create]) do
+    authorize_if always()
+  end
+
+  # Rule 2: Restrict update actions (like status modifications) to specific roles
+  policy action_type(:update) do
+    # Assuming your user resource has a relationship or attribute mapping to roles:
+    authorize_if RelatesToActorVia([:user, :role, name: :admin])
+    authorize_if RelatesToActorVia([:user, :role, name: :manager])
+    
+    # Otherwise, if roles are an embedded list or attribute array on the user:
+    # authorize_if actor_attribute_equals(:role, :admin)
+  end
+end
+
 end

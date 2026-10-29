@@ -17,6 +17,7 @@ defmodule Timeclock.Accounts.Role do
     attribute :permissions, {:array, :string} do
       public? true
       allow_nil? false
+      default []
     end
 
     create_timestamp :created_at
@@ -24,7 +25,7 @@ defmodule Timeclock.Accounts.Role do
   end
 
   identities do
-    identity :unique_id, [:id]
+    identity :unique_name, [:name]
   end
 
   postgres do
@@ -39,10 +40,12 @@ defmodule Timeclock.Accounts.Role do
   end
 
   actions do
-    defaults [:read, :destroy, create: :*]
-  end
+    defaults [:destroy, create: :*]
 
-  preparations do
-    prepare build(load: [:user])
+    # Explicitly overridden read action providing clean, isolated relationship loading filters
+    read :read do
+      primary? true
+      prepare build(load: [:user])
+    end
   end
 end

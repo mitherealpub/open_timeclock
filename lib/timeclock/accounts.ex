@@ -20,5 +20,6 @@ defmodule Timeclock.Accounts do
     resource Timeclock.Accounts.Employee
     resource Timeclock.Accounts.Manager
     resource Timeclock.Accounts.Role
+    resource Timeclock.Accounts.UserRole 
   end
 end

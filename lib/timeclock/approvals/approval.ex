@@ -3,7 +3,7 @@ defmodule Timeclock.Approvals.Approval do
     otp_app: :timeclock,
     domain: Timeclock.Approvals,
     data_layer: AshPostgres.DataLayer,
-    authorizers: [],
+    authorizers: [Ash.Policy.Authorizer]
     extensions: []
 
   attributes do
@@ -112,4 +112,19 @@ defmodule Timeclock.Approvals.Approval do
               ]
             )
   end
+
+  # Inside your defmodule Timeclock.Approvals.Approval block:
+policies do
+  # Rule 1: Submission access is global
+  policy action_type(:create) do
+    authorize_if always()
+  end
+
+  # Rule 2: Signature write access is restricted to authoritative actors
+  policy action(:update) do
+    authorize_if RelatesToActorVia([:user, :role, name: :admin])
+    authorize_if RelatesToActorVia([:user, :role, name: :manager])
+  end
+end
+
 end
