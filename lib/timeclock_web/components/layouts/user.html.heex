@@ -1,47 +1,89 @@
-<!DOCTYPE html>
-<html lang="en" class="[scrollbar-gutter:stable]">
-  <head>
-    {Application.get_env(:live_debugger, :live_debugger_tags)}
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="csrf-token" content={get_csrf_token()} />
-    <meta name="referrer" content="origin-when-cross-origin" />
-    <meta name="user-email" content={# get_user_email(@current_scope)} />
-    <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
-    <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
-    </script>
-    <script>
-      (() => {
-        const setTheme = (theme) => {
-          if (theme === "system") {
-            localStorage.removeItem("phx:theme");
-            document.documentElement.removeAttribute("data-theme");
-          } else {
-            localStorage.setItem("phx:theme", theme);
-            document.documentElement.setAttribute("data-theme", theme);
-          }
-        };
-        if (!document.documentElement.hasAttribute("data-theme")) {
-          setTheme(localStorage.getItem("phx:theme") || "system");
-        }
-        window.addEventListener("storage", (e) => e.key === "phx:theme" && setTheme(e.newValue || "system"));
-
-        window.addEventListener("phx:set-theme", (e) => setTheme(e.target.dataset.phxTheme));
-      })();
-    </script>
-    <link rel="icon" type="image/ico" href={~p"/images/favicon.ico"} sizes="32x30" />
-    <link rel="apple-touch-icon" href={~p"/images/apple-touch-icon.png"} />
-    <link rel="icon" href={~p"/images/logo.png"} />
-  </head>
-  <body class="flex flex-col min-h-screen bg-slate-200">
-    <.header>
-      <div class="pl-10 bg-indigo-300 min-h-5">
-        <div class="flex flex-row-reverse px-10"></div>
+<div class="flex min-h-screen bg-slate-100">
+  <!-- Fixed Workspace Left Navigation Sidebar Panel -->
+  <aside class="w-64 bg-slate-900 border-r border-slate-800 text-slate-300 flex flex-col justify-between shrink-0 shadow-xl">
+    <div class="p-5 space-y-6">
+      
+      <div class="flex items-center gap-2 pb-4 border-b border-slate-800">
+        <div class="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-black text-white text-sm shadow-md">
+          TC
+        </div>
+        <div>
+          <span class="block font-bold text-white text-sm tracking-wide">OPENTIMECLOCK</span>
+          <span class="block text-[10px] text-slate-500 font-mono font-medium">Enterprise Workspace</span>
+        </div>
       </div>
-    </.header>
 
-    <main class="">
+      <!-- Navigation Link Items Group Container -->
+      <nav class="space-y-1">
+        <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 mb-2">User Workspace</span>
+        
+        <.link navigate={~p"/home"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
+          <span class="text-slate-500 group-hover:text-indigo-400 transition-colors">📊</span> Dashboard Gateway
+        </.link>
+
+        <.link navigate={~p"/home/terminal"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
+          <span class="text-slate-500 group-hover:text-emerald-400 transition-colors">⏱️</span> Kiosk Punch Terminal
+        </.link>
+
+        <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 pt-6 mb-2">System Admin</span>
+
+        <.link navigate={~p"/admin/infrastructure"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
+          <span class="text-slate-500 group-hover:text-indigo-400 transition-colors">🏢</span> Business Units
+        </.link>
+
+        <.link navigate={~p"/admin/roster-planner"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
+          <span class="text-slate-500 group-hover:text-purple-400 transition-colors">🗓️</span> Shift Scheduler
+        </.link>
+
+        <.link navigate={~p"/admin/calendar-events"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
+          <span class="text-slate-500 group-hover:text-amber-400 transition-colors">🗺️</span> Calendars & Events
+        </.link>
+
+        <.link navigate={~p"/admin/operations-board"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
+          <span class="text-slate-500 group-hover:text-sky-400 transition-colors">💼</span> Projects & Milestones
+        </.link>
+
+        <.link navigate={~p"/admin/system-settings"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
+          <span class="text-slate-500 group-hover:text-slate-400 transition-colors">⚙️</span> System Gateways
+        </.link>
+
+        <.link navigate={~p"/admin/schedule-gantt"} class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-slate-800 hover:text-white transition group">
+         <span class="text-slate-500 group-hover:text-indigo-400 transition-colors">📊</span> Gantt Planner
+        </.link>
+      </nav>
+    </div>
+
+    <!-- Active User Session Bottom Profile Block Footer -->
+    <div class="p-4 border-t border-slate-800 bg-slate-950/40 flex items-center justify-between gap-3 text-xs">
+      <div class="min-w-0">
+        <span class="block font-semibold text-slate-200 truncate">
+          {if assigns[:current_scope] && @current_scope.current_user, do: @current_scope.current_user.email, default: "Identity Verified"}
+        </span>
+        <span class="block text-[10px] text-slate-500 font-mono truncate">Role: Core Actor</span>
+      </div>
+      <.link href={~p"/sign-out"} method="delete" class="text-[11px] font-bold text-rose-500 hover:text-rose-400 hover:underline transition shrink-0">
+        Sign Out
+      </.link>
+    </div>
+  </aside>
+
+  <!-- Main Responsive Live Content Output Box Wrapper Viewport -->
+  <main class="flex-1 overflow-y-auto flex flex-col">
+    <!-- Global Secondary Utility Top-bar -->
+    <header class="bg-indigo-300 min-h-5 py-2 text-xs font-semibold text-indigo-950 shadow-sm">
+      <div class="flex flex-row-reverse px-10 max-w-7xl ml-auto gap-4 items-center">
+        <div :if={assigns[:current_scope] && @current_scope.current_user}>
+          Active Context Target: <span class="font-bold">{@current_scope.current_user.email}</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content Viewport Injection Zone -->
+    <div class="flex-1">
+      <div class="max-w-7xl mx-auto px-6 pt-4">
+        <.flash_group flash={@flash} />
+      </div>
       {@inner_content}
-    </main>
-  </body>
-</html>
+    </div>
+  </main>
+</div>
