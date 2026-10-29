@@ -11,7 +11,7 @@ defmodule TimeclockWeb.ProjectBoardLive do
     project_options = Enum.map(projects, &{&1.name, &1.id})
     assignment_options = Enum.map(assignments, &{"Assignment: #{String.slice(&1.id, 0, 8)}", &1.id})
 
-    form = Timeclock.Projects.Task |> AshPhoenix.Form.for_create(:create, api: Timeclock.Projects) |> to_form()
+    form = Timeclock.Projects.Task |> AshPhoenix.Form.for_create(:create) |> to_form()
     {:ok, assign(socket, projects: projects, tasks: tasks, project_options: project_options, assignment_options: assignment_options, form: form)}
   end
 
@@ -29,7 +29,7 @@ defmodule TimeclockWeb.ProjectBoardLive do
   end
 
   defp fetch_tasks, do: Timeclock.Projects.Task |> Ash.Query.load([:project, :assignment]) |> Ash.read!()
-  defp reset_form, do: Timeclock.Projects.Task |> AshPhoenix.Form.for_create(:create, api: Timeclock.Projects) |> to_form()
+  defp reset_form, do: Timeclock.Projects.Task |> AshPhoenix.Form.for_create(:create) |> to_form()
 
   @impl true
   def render(assigns) do
@@ -51,12 +51,12 @@ defmodule TimeclockWeb.ProjectBoardLive do
         <div class="lg:col-span-2 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
           <h2 class="text-lg font-semibold text-gray-800 mb-4">Milestone Operational Board</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div :for={t <- @tasks} class="p-4 border rounded-xl bg-gray-50/50 flex flex-col justify-between">
+            <div :for={t <- @tasks} class="p-4 border rounded-xl bg-gray-50/50 flex flex-col justify-between" id={"task-card-#{t.id}"}>
               <div>
-                <div class="flex items-start justify-between border-b pb-1.5"><span class="font-bold text-gray-900 text-sm"><%= t.name %></span><span class="text-xxs font-mono bg-white border px-1.5 py-0.5 rounded truncate max-w-[120px]">📂 <%= if t.project, do: t.project.name, do: "Global" %></span></div>
-                <p class="text-xs text-gray-600 italic mt-2">"<%= t.description %>"</p>
+                <div class="flex items-start justify-between border-b pb-1.5"><span class="font-bold text-gray-900 text-sm">{t.name}</span><span class="text-xxs font-mono bg-white border px-1.5 py-0.5 rounded truncate max-w-[120px]">📂 {if t.project, do: t.project.name, default: "Global"}</span></div>
+                <p class="text-xs text-gray-600 italic mt-2">"{t.description}"</p>
               </div>
-              <div class="mt-4 pt-2 border-t text-[10px] text-gray-400 font-mono flex justify-between"><span>📅 Due: <%= t.due_date %></span></div>
+              <div class="mt-4 pt-2 border-t text-[10px] text-gray-400 font-mono flex justify-between"><span>📅 Due: {t.due_date}</span></div>
             </div>
           </div>
         </div>

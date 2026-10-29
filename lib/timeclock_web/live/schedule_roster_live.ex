@@ -11,7 +11,7 @@ defmodule TimeclockWeb.ScheduleRosterLive do
     shift_options = Enum.map(shifts, &{&1.name, &1.id})
     user_options = Enum.map(users, &{if(&1.account, do: "#{&1.account.first_name} #{&1.account.last_name}", do: &1.email), &1.id})
 
-    form = Timeclock.Scheduling.Schedule |> AshPhoenix.Form.for_create(:create, api: Timeclock.Scheduling) |> to_form()
+    form = Timeclock.Scheduling.Schedule |> AshPhoenix.Form.for_create(:create) |> to_form()
     {:ok, assign(socket, schedules: schedules, shift_options: shift_options, user_options: user_options, form: form)}
   end
 
@@ -37,7 +37,7 @@ defmodule TimeclockWeb.ScheduleRosterLive do
   end
 
   defp fetch_schedules, do: Timeclock.Scheduling.Schedule |> Ash.Query.load([:user, :shift]) |> Ash.read!()
-  defp reset_form, do: Timeclock.Scheduling.Schedule |> AshPhoenix.Form.for_create(:create, api: Timeclock.Scheduling) |> to_form()
+  defp reset_form, do: Timeclock.Scheduling.Schedule |> AshPhoenix.Form.for_create(:create) |> to_form()
 
   @impl true
   def render(assigns) do
@@ -70,9 +70,9 @@ defmodule TimeclockWeb.ScheduleRosterLive do
             </thead>
             <tbody class="divide-y divide-gray-100">
               <tr :for={s <- @schedules} id={"sched-#{s.id}"}>
-                <td class="p-3 font-medium"><%= if s.user, do: s.user.email, do: "Floating" %></td>
-                <td class="p-3"><span class="px-2 py-0.5 text-xs bg-purple-50 text-purple-700 border border-purple-200 rounded font-mono font-bold"><%= if s.shift, do: s.shift.name, do: "Custom" %></span></td>
-                <td class="p-3 text-xs text-gray-500 font-mono"><%= Calendar.strftime(s.start_time, "%m-%d %H:%M") %> → <%= Calendar.strftime(s.end_time, "%m-%d %H:%M") %></td>
+                <td class="p-3 font-medium">{if s.user, do: s.user.email, default: "Floating"}</td>
+                <td class="p-3"><span class="px-2 py-0.5 text-xs bg-purple-50 text-purple-700 border border-purple-200 rounded font-mono font-bold">{if s.shift, do: s.shift.name, default: "Custom"}</span></td>
+                <td class="p-3 text-xs text-gray-500 font-mono">{Calendar.strftime(s.start_time, "%m-%d %H:%M")} → {Calendar.strftime(s.end_time, "%m-%d %H:%M")}</td>
                 <td class="p-3 text-right"><button phx-click="delete" phx-value-id={s.id} class="text-red-600 text-xs font-semibold hover:underline">Revoke</button></td>
               </tr>
             </tbody>

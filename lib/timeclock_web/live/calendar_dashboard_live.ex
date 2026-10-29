@@ -8,7 +8,7 @@ defmodule TimeclockWeb.CalendarDashboardLive do
     groups = Ash.read!(Timeclock.Calendar.Group)
     group_options = Enum.map(groups, &{&1.name, &1.id})
 
-    form = Timeclock.Calendar.Event |> AshPhoenix.Form.for_create(:create, api: Timeclock.Calendar, params: %{"type" => %{}}) |> to_form()
+    form = Timeclock.Calendar.Event |> AshPhoenix.Form.for_create(:create, params: %{"type" => %{}}) |> to_form()
     {:ok, assign(socket, events: events, group_options: group_options, form: form)}
   end
 
@@ -34,7 +34,7 @@ defmodule TimeclockWeb.CalendarDashboardLive do
   end
 
   defp fetch_events, do: Timeclock.Calendar.Event |> Ash.Query.load([:group]) |> Ash.read!()
-  defp reset_form, do: Timeclock.Calendar.Event |> AshPhoenix.Form.for_create(:create, api: Timeclock.Calendar, params: %{"type" => %{}}) |> to_form()
+  defp reset_form, do: Timeclock.Calendar.Event |> AshPhoenix.Form.for_create(:create, params: %{"type" => %{}}) |> to_form()
 
   @impl true
   def render(assigns) do
@@ -76,11 +76,11 @@ defmodule TimeclockWeb.CalendarDashboardLive do
             <tbody class="divide-y divide-gray-100">
               <tr :for={e <- @events} id={"evt-#{e.id}"}>
                 <td class="p-3">
-                  <span class="font-bold text-gray-900 block"><%= e.name %></span>
-                  <div :if={e.type} class="text-[10px] text-gray-400 mt-0.5">🏷️ Name: <%= e.type.name %> | Val: <%= e.type.value %></div>
+                  <span class="font-bold text-gray-900 block">{e.name}</span>
+                  <div :if={e.type} class="text-[10px] text-gray-400 mt-0.5">¼️ Name: {e.type.name} | Val: {e.type.value}</div>
                 </td>
-                <td class="p-3"><span class="px-2 py-0.5 text-xs bg-blue-50 text-blue-800 rounded border border-blue-200 font-medium">👥 <%= if e.group, do: e.group.name, do: "Global" %></span></td>
-                <td class="p-3 text-xs text-gray-500 font-mono"><%= e.date %> → <%= e.valid_to %></td>
+                <td class="p-3"><span class="px-2 py-0.5 text-xs bg-blue-50 text-blue-800 rounded border border-blue-200 font-medium">👥 {if e.group, do: e.group.name, default: "Global"}</span></td>
+                <td class="p-3 text-xs text-gray-500 font-mono">{e.date} → {e.valid_to}</td>
                 <td class="p-3 text-right"><button phx-click="delete" phx-value-id={e.id} class="text-red-600 font-semibold text-xs hover:underline">Purge</button></td>
               </tr>
             </tbody>

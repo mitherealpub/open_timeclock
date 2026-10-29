@@ -14,7 +14,7 @@ defmodule TimeclockWeb.ClockingTerminalLive do
 
     form =
       Timeclock.Clocking.Clocking
-      |> AshPhoenix.Form.for_create(:insert_from_web, api: Timeclock.Clocking, params: %{"geolocation" => %{}})
+      |> AshPhoenix.Form.for_create(:insert_from_web, params: %{"geolocation" => %{}})
       |> to_form()
 
     {:ok, assign(socket, clockings: fetch_clockings(), user_options: user_options, definition_options: definition_options, status_options: status_options, form: form, has_geo: false)}
@@ -37,12 +37,12 @@ defmodule TimeclockWeb.ClockingTerminalLive do
   end
 
   defp fetch_clockings, do: Timeclock.Clocking.Clocking |> Ash.Query.load([:user, :definition, :status]) |> Ash.Query.limit(10) |> Ash.read!()
-  defp reset_form, do: Timeclock.Clocking.Clocking |> AshPhoenix.Form.for_create(:insert_from_web, api: Timeclock.Clocking, params: %{"geolocation" => %{}}) |> to_form()
+  defp reset_form, do: Timeclock.Clocking.Clocking |> AshPhoenix.Form.for_create(:insert_from_web, params: %{"geolocation" => %{}}) |> to_form()
 
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="p-6 max-w-6xl mx-auto space-y-6">
+    <div class="p-6 max-w-7xl mx-auto space-y-6">
       <h1 class="text-2xl font-bold text-gray-900">Workforce Kiosk Terminal</h1>
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm h-fit">
@@ -91,11 +91,11 @@ defmodule TimeclockWeb.ClockingTerminalLive do
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
-              <tr :for={c <- @clockings}>
-                <td class="p-3 font-medium"><%= if c.user, do: c.user.email, do: "System" %></td>
-                <td class="p-3"><%= if c.definition, do: c.definition.name, do: "Punch" %></td>
-                <td class="p-3"><span class="px-2 py-0.5 text-xs bg-blue-100 rounded text-blue-800"><%= if c.status, do: c.status.name, do: "Default" %></span></td>
-                <td class="p-3 text-right font-mono text-xs text-gray-400"><%= NaiveDateTime.to_time(c.created_at) %></td>
+              <tr :for={c <- @clockings} id={"clocking-row-#{c.id}"}>
+                <td class="p-3 font-medium">{if c.user, do: c.user.email, default: "System"}</td>
+                <td class="p-3">{if c.definition, do: c.definition.name, default: "Punch"}</td>
+                <td class="p-3"><span class="px-2 py-0.5 text-xs bg-blue-100 rounded text-blue-800">{if c.status, do: c.status.name, default: "Default"}</span></td>
+                <td class="p-3 text-right font-mono text-xs text-gray-400">{NaiveDateTime.to_time(c.created_at)}</td>
               </tr>
             </tbody>
           </table>

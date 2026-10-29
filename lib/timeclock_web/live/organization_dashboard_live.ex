@@ -11,8 +11,8 @@ defmodule TimeclockWeb.OrganizationDashboardLive do
     org_options = Enum.map(orgs, &{&1.name, &1.id})
     comp_options = Enum.map(comps, &{&1.name, &1.id})
 
-    comp_form = Timeclock.Organizations.Company |> AshPhoenix.Form.for_create(:create, api: Timeclock.Organizations, params: %{"address" => %{}}) |> to_form()
-    dept_form = Timeclock.Organizations.Department |> AshPhoenix.Form.for_create(:create, api: Timeclock.Organizations) |> to_form()
+    comp_form = Timeclock.Organizations.Company |> AshPhoenix.Form.for_create(:create, params: %{"address" => %{}}) |> to_form()
+    dept_form = Timeclock.Organizations.Department |> AshPhoenix.Form.for_create(:create) |> to_form()
 
     {:ok, assign(socket, orgs: orgs, comps: comps, depts: depts, org_options: org_options, comp_options: comp_options, comp_form: comp_form, dept_form: dept_form)}
   end
@@ -44,8 +44,8 @@ defmodule TimeclockWeb.OrganizationDashboardLive do
   end
 
   defp fetch_companies, do: Timeclock.Organizations.Company |> Ash.Query.load([:organization]) |> Ash.read!()
-  defp reset_comp_form, do: Timeclock.Organizations.Company |> AshPhoenix.Form.for_create(:create, api: Timeclock.Organizations, params: %{"address" => %{}}) |> to_form()
-  defp reset_dept_form, do: Timeclock.Organizations.Department |> AshPhoenix.Form.for_create(:create, api: Timeclock.Organizations) |> to_form()
+  defp reset_comp_form, do: Timeclock.Organizations.Company |> AshPhoenix.Form.for_create(:create, params: %{"address" => %{}}) |> to_form()
+  defp reset_dept_form, do: Timeclock.Organizations.Department |> AshPhoenix.Form.for_create(:create) |> to_form()
 
   @impl true
   def render(assigns) do
@@ -89,19 +89,19 @@ defmodule TimeclockWeb.OrganizationDashboardLive do
         <div class="lg:col-span-2 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
           <h2 class="text-lg font-bold text-gray-900 mb-4">Operations Map Directory</h2>
           <div class="space-y-4">
-            <div :for={c <- @comps} class="p-4 border rounded-xl bg-gray-50/50 space-y-2">
+            <div :for={c <- @comps} class="p-4 border rounded-xl bg-gray-50/50 space-y-2" id={"company-card-#{c.id}"}>
               <div class="flex justify-between items-center font-bold">
                 <div>
-                  <span class="text-gray-900"><%= c.name %></span>
-                  <span class="block text-xxs text-gray-400">Code: <%= c.registration_number %></span>
+                  <span class="text-gray-900">{c.name}</span>
+                  <span class="block text-xxs text-gray-400">Code: {c.registration_number}</span>
                 </div>
-                <span class="text-xxs px-2 py-0.5 rounded bg-indigo-100 text-indigo-800"><%= if c.organization, do: c.organization.name, do: "Root" %></span>
+                <span class="text-xxs px-2 py-0.5 rounded bg-indigo-100 text-indigo-800">{if c.organization, do: c.organization.name, default: "Root"}</span>
               </div>
               <div :if={c.address} class="text-xxs text-gray-500 font-mono bg-white p-2 rounded border border-gray-100 shadow-inner">
-                <%= c.address.street %>, <%= c.address.city %>, <%= c.address.state %> <%= c.address.postal_code %>, <%= c.address.country %>
+                {c.address.street}, {c.address.city}, {c.address.state} {c.address.postal_code}, {c.address.country}
               </div>
               <div class="flex flex-wrap gap-1.5 pt-1">
-                <span :for={d <- @depts} :if={d.company_id == c.id} class="px-2 py-0.5 text-xxs rounded bg-blue-50 text-blue-700 border border-blue-200"><%= d.name %></span>
+                <span :for={d <- @depts} :if={d.company_id == c.id} class="px-2 py-0.5 text-xxs rounded bg-blue-50 text-blue-700 border border-blue-200">{d.name}</span>
               </div>
             </div>
           </div>

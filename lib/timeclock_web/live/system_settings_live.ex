@@ -9,7 +9,7 @@ defmodule TimeclockWeb.SystemSettingsLive do
       [record | _] -> record
     end
 
-    form = settings |> AshPhoenix.Form.for_update(:update, api: Timeclock.System) |> to_form()
+    form = settings |> AshPhoenix.Form.for_update(:update) |> to_form()
     
     provider_options = [{"SMTP Server Delivery", "smtp"}, {"SendGrid API", "sendgrid"}, {"Mailgun Engine", "mailgun"}, {"Postmark Client", "postmark"}, {"Brevo Suite", "brevo"}, {"Amazon SES", "amazon_ses"}]
     tls_options = [{"Upgrade if Available", "if_available"}, {"Enforce TLS Encryption", "always"}, {"Plain Communication", "never"}]
@@ -25,7 +25,7 @@ defmodule TimeclockWeb.SystemSettingsLive do
   @impl true
   def handle_event("save", %{"form" => params}, socket) do
     case AshPhoenix.Form.submit(socket.assigns.form, params: params) do
-      {:ok, fresh} -> {:noreply, socket |> put_flash(:info, "System properties optimized.") |> assign(settings: fresh, form: AshPhoenix.Form.for_update(fresh, :update, api: Timeclock.System) |> to_form())}
+      {:ok, fresh} -> {:noreply, socket |> put_flash(:info, "System properties optimized.") |> assign(settings: fresh, form: AshPhoenix.Form.for_update(fresh, :update) |> to_form())}
       {:error, form} -> {:noreply, assign(socket, form: to_form(form))}
     end
   end
