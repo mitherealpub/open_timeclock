@@ -140,6 +140,10 @@ defmodule TimeclockWeb.Router do
 
       # Encrypted System Settings & Swoosh SMTP Configuration
       live "/system-settings", SystemSettingsLive, :index
+
+      live "/time-off", AbsenceRequestLive, :index
+
+      live "/approvals", AdminApprovalsLive, :index
     end
   end
 

@@ -9,11 +9,16 @@ import Config
 
 config :ash_oban, pro?: false
 
+# Consolidated Oban configuration with async worker queues mapped cleanly
 config :timeclock, Oban,
   engine: Oban.Engines.Basic,
   notifier: Oban.Notifiers.Postgres,
-  queues: [default: 10],
   repo: Timeclock.Repo,
+  queues: [
+    default: 10,
+    mailers: 10,
+    ash_notifications: 5
+  ],
   plugins: [{Oban.Plugins.Cron, []}]
 
 config :cinder,
@@ -81,7 +86,7 @@ config :timeclock,
   ],
   ash_authentication: [return_error_on_invalid_magic_link_token?: true]
 
-# Configure the endpoint
+# Configure the web endpoint wrapper
 config :timeclock, TimeclockWeb.Endpoint,
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,
@@ -92,16 +97,10 @@ config :timeclock, TimeclockWeb.Endpoint,
   pubsub_server: Timeclock.PubSub,
   live_view: [signing_salt: "+U8HZ3aj"]
 
-# Configure the mailer
-#
-# By default it uses the "Local" adapter which stores the emails
-# locally. You can see the emails in your browser, at "/dev/mailbox".
-#
-# For production it's recommended to configure a different adapter
-# at the `config/runtime.exs`.
+# Configure the standard mailer
 config :timeclock, Timeclock.Mailer, adapter: Swoosh.Adapters.Local
 
-# Configure esbuild (the version is required)
+# Configure esbuild asset bundler targets
 config :esbuild,
   version: "0.25.4",
   timeclock: [
@@ -111,7 +110,7 @@ config :esbuild,
     env: %{"NODE_PATH" => [Path.expand("../deps", __DIR__), Mix.Project.build_path()]}
   ]
 
-# Configure tailwind (the version is required)
+# Configure tailwind styling compilation targets
 config :tailwind,
   version: "4.1.12",
   timeclock: [
@@ -119,7 +118,7 @@ config :tailwind,
       --input=assets/css/app.css
       --output=priv/static/assets/css/app.css
     ),
-    cd: Path.expand("..", __DIR__)
+    cd: Path.expand("../", __DIR__)
   ]
 
 # Configure Elixir's Logger
@@ -129,12 +128,6 @@ config :logger, :default_formatter,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
-
-config :spark, :formatter,
-  remove_parens?: true,
-  "Ash.Resource": [
-    section_order: []
-  ]
 
 config :phoenix_copy,
   images: [
